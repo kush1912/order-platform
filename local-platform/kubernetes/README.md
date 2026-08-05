@@ -178,7 +178,30 @@ kind delete cluster --name order-platform
 ## Important limitations
 
 - This setup is intended for local learning, not production.
-- It uses one replica for each stateful and application workload.
+- The API Gateway, order, inventory, and notification services each run 2
+  replicas and are autoscaled (2-5) by HorizontalPodAutoscalers; the stateful
+  workloads (PostgreSQL, Kafka, Redis, etc.) use one replica.
+- Kafka topics are created with 6 partitions, so each consumer group scales
+  effectively up to the HPA ceiling of 5 replicas without idle consumers.
+- The HorizontalPodAutoscalers require the Kubernetes metrics-server. Docker
+  Desktop and kind do not ship it by default, so install it before expecting
+  autoscaling:
+
+  ```powershell
+  kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+  ```
+
+  On Docker Desktop and kind the kubelet uses a self-signed certificate, so the
+  metrics-server Deployment must also be patched to skip TLS verification:
+
+  ```powershell
+  kubectl patch deployment metrics-server -n kube-system --type=json `
+    -p '[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+  ```
+
+  Without metrics-server the autoscalers stay inert and each service simply
+  keeps its 2 configured replicas. Check autoscaler status with
+  `kubectl get hpa -n order-platform-k8s`.
 - Secrets contain explicit local-development values.
 - Services are exposed through fixed NodePorts for convenience.
 - Local application images use `imagePullPolicy: Never`.
