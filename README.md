@@ -153,3 +153,4 @@ Grafana, Redis, and Mailpit volume data.
 
 - [Docker Desktop and Order Platform Notes](DOCKER-DESKTOP-NOTES.md)
 - [Load-test guide](local-platform/load-tests/README.md)
+- [Separate Docker Desktop Kubernetes setup](local-platform/kubernetes/README.md)
