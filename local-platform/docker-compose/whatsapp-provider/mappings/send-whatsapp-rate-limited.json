@@ -1,0 +1,23 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/messages",
+    "headers": {
+      "X-Simulate-Response": {
+        "equalTo": "429"
+      }
+    }
+  },
+  "response": {
+    "status": 429,
+    "headers": {
+      "Content-Type": "application/json",
+      "Retry-After": "5"
+    },
+    "jsonBody": {
+      "code": "RATE_LIMITED",
+      "message": "WhatsApp provider rate limit exceeded"
+    }
+  }
+}

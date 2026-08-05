@@ -1,0 +1,51 @@
+groups:
+  - name: service-http
+    interval: 30s
+    rules:
+      - record: service:http_requests:rate5m
+        expr: sum by (application) (rate(http_server_requests_seconds_count[5m]))
+
+      - record: service:http_errors:rate5m
+        expr: sum by (application) (rate(http_server_requests_seconds_count{status=~"5.."}[5m])) or on (application) (0 * service:http_requests:rate5m)
+
+      - record: service:http_error_ratio:rate5m
+        expr: service:http_errors:rate5m / clamp_min(service:http_requests:rate5m, 0.000001)
+
+      - record: service:http_latency_seconds:p50_5m
+        expr: histogram_quantile(0.50, sum by (application, le) (rate(http_server_requests_seconds_bucket[5m])))
+
+      - record: service:http_latency_seconds:p95_5m
+        expr: histogram_quantile(0.95, sum by (application, le) (rate(http_server_requests_seconds_bucket[5m])))
+
+      - record: service:http_latency_seconds:p99_5m
+        expr: histogram_quantile(0.99, sum by (application, le) (rate(http_server_requests_seconds_bucket[5m])))
+
+  - name: service-jvm
+    interval: 30s
+    rules:
+      - record: service:jvm_heap_usage:ratio
+        expr: sum by (application) (jvm_memory_used_bytes{area="heap"}) / clamp_min(sum by (application) (jvm_memory_max_bytes{area="heap"}), 1)
+
+      - record: service:jvm_gc_pause_seconds:p95_5m
+        expr: histogram_quantile(0.95, sum by (application, le) (rate(jvm_gc_pause_seconds_bucket[5m])))
+
+      - record: service:process_cpu_usage:ratio
+        expr: avg by (application) (process_cpu_usage)
+
+      - record: service:system_cpu_usage:ratio
+        expr: avg by (application) (system_cpu_usage)
+
+      - record: service:tomcat_thread_usage:ratio
+        expr: sum by (application) (tomcat_threads_busy_threads) / clamp_min(sum by (application) (tomcat_threads_config_max_threads), 1)
+
+  - name: gateway-resilience
+    interval: 15s
+    rules:
+      - record: gateway:downstream_failures:rate5m
+        expr: sum by (service, outcome) (rate(gateway_downstream_failures_total[5m]))
+
+      - record: gateway:circuitbreaker_calls:rate5m
+        expr: sum by (name, kind) (rate(resilience4j_circuitbreaker_calls_seconds_count[5m]))
+
+      - record: gateway:circuitbreaker_open
+        expr: max by (name) (resilience4j_circuitbreaker_state{state="open"})

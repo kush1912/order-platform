@@ -1,0 +1,14 @@
+[
+  {"sku":"K6-LAPTOP-001","unitPrice":1299.99,"weight":2},
+  {"sku":"K6-MONITOR-002","unitPrice":349.50,"weight":4},
+  {"sku":"K6-KEYBOARD-003","unitPrice":89.99,"weight":8},
+  {"sku":"K6-MOUSE-004","unitPrice":49.99,"weight":10},
+  {"sku":"K6-HEADSET-005","unitPrice":119.00,"weight":7},
+  {"sku":"K6-DOCK-006","unitPrice":229.95,"weight":4},
+  {"sku":"K6-WEBCAM-007","unitPrice":139.99,"weight":5},
+  {"sku":"K6-SSD-008","unitPrice":159.49,"weight":6},
+  {"sku":"K6-RAM-009","unitPrice":129.00,"weight":6},
+  {"sku":"K6-CABLE-010","unitPrice":19.99,"weight":12},
+  {"sku":"K6-CHARGER-011","unitPrice":69.99,"weight":8},
+  {"sku":"K6-SPEAKER-012","unitPrice":179.99,"weight":4}
+]

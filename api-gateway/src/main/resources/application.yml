@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: ${ORDER_SERVICE_BASE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/orders,/api/v1/orders/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: orderServiceCircuitBreaker
+                fallbackUri: forward:/internal/fallback/order-service
+                statusCodes:
+                  - 500
+                  - 502
+                  - 503
+                  - 504
+          metadata:
+            connect-timeout: 1000
+            response-timeout: 2500
+        - id: inventory-service
+          uri: ${INVENTORY_SERVICE_BASE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/inventory,/api/v1/inventory/**
+          metadata:
+            connect-timeout: 1000
+            response-timeout: 2500
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 3s
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+server:
+  shutdown: graceful
+  forward-headers-strategy: framework
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      orderServiceCircuitBreaker:
+        sliding-window-type: count_based
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        permitted-number-of-calls-in-half-open-state: 3
+        wait-duration-in-open-state: 15s
+        automatic-transition-from-open-to-half-open-enabled: true
+  timelimiter:
+    instances:
+      orderServiceCircuitBreaker:
+        timeout-duration: 2s
+        cancel-running-future: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${DEPLOYMENT_ENVIRONMENT:local}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        jvm.gc.pause: true
+      minimum-expected-value:
+        http.server.requests: 5ms
+        jvm.gc.pause: 1ms
+      maximum-expected-value:
+        http.server.requests: 10s
+        jvm.gc.pause: 10s
+      slo:
+        http.server.requests: 50ms,100ms,250ms,500ms,1s,2s,5s

@@ -1,0 +1,18 @@
+[
+  {"id":"0d7d9214-5b78-4d63-a1d4-c93174e75201","segment":"retail","currency":"USD"},
+  {"id":"172565e7-881b-4571-9501-ac30c4c4ab02","segment":"retail","currency":"USD"},
+  {"id":"2a0a948c-3d7c-49c8-ace4-c4bd4acc9c03","segment":"business","currency":"USD"},
+  {"id":"32562dd6-64f7-49b5-9743-a46c50b5f204","segment":"retail","currency":"USD"},
+  {"id":"4bcc67e3-0415-4c3f-8344-967ea08c6b05","segment":"business","currency":"USD"},
+  {"id":"53675c70-8193-4473-83ad-e66bdcab2d06","segment":"retail","currency":"USD"},
+  {"id":"6e9dd3c3-33c6-48de-b83f-fc6cd9ce2307","segment":"retail","currency":"USD"},
+  {"id":"75c1fe35-5397-42df-8063-3788a580e208","segment":"business","currency":"USD"},
+  {"id":"87994949-dbb4-4a9d-9095-57080f355209","segment":"retail","currency":"USD"},
+  {"id":"9f8ee44d-db47-478e-816d-c0dbb7a4bb10","segment":"retail","currency":"USD"},
+  {"id":"a4774577-a683-46d4-aa75-585924371111","segment":"business","currency":"USD"},
+  {"id":"b21492a1-a3a4-4e84-9191-0b9640d74112","segment":"retail","currency":"USD"},
+  {"id":"c1d21d13-f1ef-4741-af4b-6910eb034113","segment":"retail","currency":"USD"},
+  {"id":"d706b051-faf0-42ea-a43a-727cc63a0614","segment":"business","currency":"USD"},
+  {"id":"e2ae3e7a-2811-48ed-af98-d169d1f7ba15","segment":"retail","currency":"USD"},
+  {"id":"f532b35a-ad87-4121-bb54-5610f72bc716","segment":"retail","currency":"USD"}
+]

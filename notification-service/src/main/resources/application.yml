@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: notification-service
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/notification_db}
+    username: ${DATABASE_USERNAME:notification_service}
+    password: ${DATABASE_PASSWORD:notification-local-password}
+    hikari:
+      pool-name: notification-service-pool
+      minimum-idle: 2
+      maximum-pool-size: 10
+      connection-timeout: 2000
+      validation-timeout: 1000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      keepalive-time: 300000
+  mail:
+    host: ${EMAIL_SMTP_HOST:localhost}
+    port: ${EMAIL_SMTP_PORT:1025}
+    default-encoding: UTF-8
+    properties:
+      "[mail.smtp.connectiontimeout]": 2000
+      "[mail.smtp.timeout]": 5000
+      "[mail.smtp.writetimeout]": 5000
+  flyway:
+    enabled: true
+    validate-migration-naming: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    consumer:
+      group-id: notification-dispatch-v1
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
+    listener:
+      ack-mode: record
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+notification:
+  retry:
+    interval: 1s
+    max-attempts: 3
+  providers:
+    email:
+      from: ${EMAIL_FROM:orders@orderplatform.local}
+    sms:
+      base-url: ${SMS_PROVIDER_BASE_URL:http://localhost:9091}
+    whatsapp:
+      base-url: ${WHATSAPP_PROVIDER_BASE_URL:http://localhost:9092}
+    http-client:
+      connect-timeout: 2s
+      read-timeout: 5s
+
+server:
+  shutdown: graceful
+  forward-headers-strategy: framework
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+      group:
+        readiness:
+          include: readinessState,db
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${DEPLOYMENT_ENVIRONMENT:local}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        jvm.gc.pause: true
+      minimum-expected-value:
+        http.server.requests: 5ms
+        jvm.gc.pause: 1ms
+      maximum-expected-value:
+        http.server.requests: 10s
+        jvm.gc.pause: 10s
+      slo:
+        http.server.requests: 50ms,100ms,250ms,500ms,1s,2s,5s

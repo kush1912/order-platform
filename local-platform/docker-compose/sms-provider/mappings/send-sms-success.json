@@ -1,0 +1,33 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "POST",
+    "urlPath": "/v1/messages",
+    "headers": {
+      "Content-Type": {
+        "contains": "application/json"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.to"
+      },
+      {
+        "matchesJsonPath": "$.body"
+      },
+      {
+        "matchesJsonPath": "$.clientReference"
+      }
+    ]
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"providerMessageId\":\"sms-{{randomValue length=16 type='ALPHANUMERIC'}}\",\"status\":\"ACCEPTED\",\"clientReference\":\"{{jsonPath request.body '$.clientReference'}}\"}",
+    "transformers": [
+      "response-template"
+    ]
+  }
+}
