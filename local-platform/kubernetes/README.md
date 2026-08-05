@@ -29,6 +29,50 @@ kubectl get nodes
 
 The Docker Desktop node should report `Ready`.
 
+### Standalone kind alternative
+
+If Docker Desktop's built-in Kubernetes feature is unavailable, install kind:
+
+```powershell
+winget install --id Kubernetes.kind --exact
+```
+
+Create an equivalent local cluster backed by Docker Desktop:
+
+```powershell
+kind create cluster `
+  --name order-platform `
+  --config .\local-platform\kubernetes\kind-cluster.yaml
+```
+
+Build and load the local application images:
+
+```powershell
+$services = @(
+  "api-gateway",
+  "order-service",
+  "inventory-service",
+  "notification-service"
+)
+
+foreach ($service in $services) {
+  docker build `
+    --tag "order-platform/${service}:local" `
+    --file ".\$service\deploy\docker\Dockerfile" `
+    ".\$service"
+
+  kind load docker-image `
+    --name order-platform `
+    "order-platform/${service}:local"
+}
+```
+
+Then deploy with:
+
+```powershell
+.\local-platform\kubernetes\Deploy-LocalKubernetes.ps1 -SkipBuild
+```
+
 ## Deploy
 
 From the repository root:
@@ -125,6 +169,12 @@ Deleting the namespace also deletes its namespace-scoped resources and
 PersistentVolumeClaims. The existing Docker Compose environment and volumes are
 not affected.
 
+Delete the standalone kind cluster with:
+
+```powershell
+kind delete cluster --name order-platform
+```
+
 ## Important limitations
 
 - This setup is intended for local learning, not production.
@@ -132,7 +182,7 @@ not affected.
 - Secrets contain explicit local-development values.
 - Services are exposed through fixed NodePorts for convenience.
 - Local application images use `imagePullPolicy: Never`.
-- PostgreSQL, Kafka, Redis, Prometheus, Grafana, and Mailpit use the Docker
-  Desktop default StorageClass.
+- PostgreSQL, Kafka, Redis, Prometheus, Grafana, and Mailpit use the cluster's
+  default StorageClass (`hostpath` on Docker Desktop or `local-path` on kind).
 - Jaeger is deployed, but the applications do not yet emit OpenTelemetry
   traces.

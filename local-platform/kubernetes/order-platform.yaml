@@ -283,6 +283,7 @@ metadata:
   name: kafka
   namespace: order-platform-k8s
 spec:
+  publishNotReadyAddresses: true
   selector:
     app.kubernetes.io/name: kafka
   ports:
@@ -1367,6 +1368,7 @@ metadata:
     app.kubernetes.io/part-of: order-platform
 spec:
   replicas: 1
+  progressDeadlineSeconds: 900
   selector:
     matchLabels:
       app.kubernetes.io/name: api-gateway
