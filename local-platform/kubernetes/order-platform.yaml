@@ -1051,6 +1051,8 @@ spec:
               value: kafka:9092
             - name: INVENTORY_GRPC_TARGET
               value: static://inventory-service:9090
+            - name: OTLP_TRACING_ENDPOINT
+              value: http://jaeger:4318/v1/traces
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
