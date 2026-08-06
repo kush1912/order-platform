@@ -24,13 +24,15 @@ import java.util.List;
 @Component
 public class InventoryAvailabilityClient {
 
-    private final InventoryAvailabilityGrpc.InventoryAvailabilityBlockingStub availabilityStub;
-
-    public InventoryAvailabilityClient(
-            @GrpcClient("inventory")
-            InventoryAvailabilityGrpc.InventoryAvailabilityBlockingStub availabilityStub) {
-        this.availabilityStub = availabilityStub;
-    }
+    /*
+     * Field injection (not constructor injection) is intentional. Constructor-injecting a
+     * net.devh @GrpcClient stub forces the grpcClientBeanPostProcessor to eagerly initialize
+     * during BeanPostProcessor setup, which races ahead of Micrometer's observation wiring and
+     * silently drops http.server.requests (and other observation-based) metrics.
+     * See grpc-spring issues #859 / #992.
+     */
+    @GrpcClient("inventory")
+    private InventoryAvailabilityGrpc.InventoryAvailabilityBlockingStub availabilityStub;
 
     public void ensureAvailable(List<CreateOrderCommand.OrderItemCommand> items) {
         CheckAvailabilityRequest.Builder request = CheckAvailabilityRequest.newBuilder();
