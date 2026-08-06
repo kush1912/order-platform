@@ -3,6 +3,7 @@ package com.orderplatform.order.application.service;
 import com.orderplatform.order.domain.entity.OrderEntity;
 import com.orderplatform.order.domain.exception.IdempotencyConflictException;
 import com.orderplatform.order.domain.exception.OrderNotFoundException;
+import com.orderplatform.order.infrastructure.grpc.InventoryAvailabilityClient;
 import com.orderplatform.order.infrastructure.repository.OrderRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,16 +18,19 @@ public class OrderApplicationService {
     private final OrderRepository orderRepository;
     private final OrderWriter orderWriter;
     private final OrderRequestHasher requestHasher;
+    private final InventoryAvailabilityClient inventoryAvailabilityClient;
     private final MeterRegistry meterRegistry;
 
     public OrderApplicationService(
             OrderRepository orderRepository,
             OrderWriter orderWriter,
             OrderRequestHasher requestHasher,
+            InventoryAvailabilityClient inventoryAvailabilityClient,
             MeterRegistry meterRegistry) {
         this.orderRepository = orderRepository;
         this.orderWriter = orderWriter;
         this.requestHasher = requestHasher;
+        this.inventoryAvailabilityClient = inventoryAvailabilityClient;
         this.meterRegistry = meterRegistry;
     }
 
@@ -36,6 +40,8 @@ public class OrderApplicationService {
         if (existing != null) {
             return replay(existing, requestHash);
         }
+
+        inventoryAvailabilityClient.ensureAvailable(command.items());
 
         try {
             OrderEntity created = orderWriter.create(command, idempotencyKey, requestHash);

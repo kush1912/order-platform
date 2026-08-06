@@ -26,6 +26,9 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     implementation("org.flywaydb:flyway-core")
 
+    implementation("io.micrometer:micrometer-tracing-bridge-otel")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")

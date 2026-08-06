@@ -12,6 +12,7 @@ public record OrderResponse(
         UUID customerId,
         OrderStatus status,
         String reservationFailureReason,
+        Integer etaDays,
         String currency,
         BigDecimal totalAmount,
         List<OrderItemResponse> items,

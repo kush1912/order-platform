@@ -1049,6 +1049,8 @@ spec:
                   key: order-database-password
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: kafka:9092
+            - name: INVENTORY_GRPC_TARGET
+              value: static://inventory-service:9090
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
@@ -1189,6 +1191,8 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+            - name: grpc
+              containerPort: 9090
           env:
             - name: DEPLOYMENT_ENVIRONMENT
               value: kubernetes-local
@@ -1203,6 +1207,8 @@ spec:
                   key: inventory-database-password
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: kafka:9092
+            - name: OTLP_TRACING_ENDPOINT
+              value: http://jaeger:4318/v1/traces
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
@@ -1241,6 +1247,9 @@ spec:
     - name: http
       port: 8080
       targetPort: http
+    - name: grpc
+      port: 9090
+      targetPort: grpc
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
@@ -1366,6 +1375,8 @@ spec:
               value: http://whatsapp-provider:8080
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: kafka:9092
+            - name: OTLP_TRACING_ENDPOINT
+              value: http://jaeger:4318/v1/traces
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
@@ -1532,6 +1543,8 @@ spec:
               value: http://toxiproxy:8666
             - name: INVENTORY_SERVICE_BASE_URL
               value: http://inventory-service:8080
+            - name: OTLP_TRACING_ENDPOINT
+              value: http://jaeger:4318/v1/traces
           startupProbe:
             httpGet:
               path: /actuator/health/liveness

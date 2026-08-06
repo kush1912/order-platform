@@ -1,8 +1,11 @@
 package com.orderplatform.order.api.exception;
 
 import com.orderplatform.order.domain.exception.IdempotencyConflictException;
+import com.orderplatform.order.domain.exception.InsufficientInventoryException;
 import com.orderplatform.order.domain.exception.InvalidOrderStateException;
+import com.orderplatform.order.domain.exception.InventoryUnavailableException;
 import com.orderplatform.order.domain.exception.OrderNotFoundException;
+import com.orderplatform.order.domain.exception.UnknownSkuException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -44,6 +47,43 @@ public class ApiExceptionHandler {
         return problem(
                 HttpStatus.CONFLICT,
                 "Invalid order state",
+                exception.getMessage(),
+                request);
+    }
+
+    @ExceptionHandler(InsufficientInventoryException.class)
+    ProblemDetail handleInsufficientInventory(
+            InsufficientInventoryException exception,
+            HttpServletRequest request) {
+        ProblemDetail problem = problem(
+                HttpStatus.CONFLICT,
+                "Insufficient inventory",
+                exception.getMessage(),
+                request);
+        problem.setProperty("skus", exception.getSkus());
+        return problem;
+    }
+
+    @ExceptionHandler(UnknownSkuException.class)
+    ProblemDetail handleUnknownSku(
+            UnknownSkuException exception,
+            HttpServletRequest request) {
+        ProblemDetail problem = problem(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                "Unknown SKU",
+                exception.getMessage(),
+                request);
+        problem.setProperty("skus", exception.getSkus());
+        return problem;
+    }
+
+    @ExceptionHandler(InventoryUnavailableException.class)
+    ProblemDetail handleInventoryUnavailable(
+            InventoryUnavailableException exception,
+            HttpServletRequest request) {
+        return problem(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                "Inventory service unavailable",
                 exception.getMessage(),
                 request);
     }

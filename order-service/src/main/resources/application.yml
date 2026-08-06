@@ -45,8 +45,11 @@ spring:
       properties:
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
+    template:
+      observation-enabled: true
     listener:
       ack-mode: record
+      observation-enabled: true
   mvc:
     problemdetails:
       enabled: true
@@ -73,6 +76,12 @@ management:
       group:
         readiness:
           include: readinessState,db
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
+  otlp:
+    tracing:
+      endpoint: ${OTLP_TRACING_ENDPOINT:http://localhost:4318/v1/traces}
   metrics:
     tags:
       application: ${spring.application.name}
@@ -94,3 +103,9 @@ order:
   outbox:
     fixed-delay: 500ms
     publish-timeout: 5s
+
+grpc:
+  client:
+    inventory:
+      address: ${INVENTORY_GRPC_TARGET:static://localhost:9090}
+      negotiation-type: plaintext

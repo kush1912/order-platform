@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package orderplatform.inventory.v1;
+
+option java_multiple_files = true;
+option java_package = "com.orderplatform.inventory.grpc.v1";
+option java_outer_classname = "InventoryAvailabilityProto";
+
+// Synchronous, advisory availability check used by order-service to fail fast
+// before creating an order. The authoritative reservation still happens
+// asynchronously via the Kafka saga.
+service InventoryAvailability {
+  rpc CheckAvailability(CheckAvailabilityRequest) returns (CheckAvailabilityResponse);
+}
+
+message CheckAvailabilityRequest {
+  repeated RequestedItem items = 1;
+}
+
+message RequestedItem {
+  string sku = 1;
+  int64 quantity = 2;
+}
+
+message CheckAvailabilityResponse {
+  bool available = 1;
+  repeated Shortfall shortfalls = 2;
+}
+
+message Shortfall {
+  string sku = 1;
+  ShortfallReason reason = 2;
+  int64 requested = 3;
+  int64 available = 4;
+}
+
+enum ShortfallReason {
+  SHORTFALL_REASON_UNSPECIFIED = 0;
+  INSUFFICIENT_INVENTORY = 1;
+  SKU_NOT_FOUND = 2;
+}

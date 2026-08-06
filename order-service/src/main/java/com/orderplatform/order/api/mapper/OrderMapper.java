@@ -37,6 +37,7 @@ public class OrderMapper {
                 order.getCustomerId(),
                 order.getStatus(),
                 order.getReservationFailureReason(),
+                order.getEtaDays(),
                 order.getCurrency(),
                 order.getTotalAmount(),
                 items,

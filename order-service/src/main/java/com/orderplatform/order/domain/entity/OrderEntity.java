@@ -47,6 +47,9 @@ public class OrderEntity {
     @Column(name = "reservation_failure_reason", length = 256)
     private String reservationFailureReason;
 
+    @Column(name = "eta_days")
+    private Integer etaDays;
+
     @Column(name = "cancellation_idempotency_key", length = 128)
     private String cancellationIdempotencyKey;
 
@@ -114,6 +117,12 @@ public class OrderEntity {
         updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
 
+    public void applyEta(int days) {
+        requireStatus(OrderStatus.CONFIRMED);
+        etaDays = days;
+        updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
+    }
+
     public void requestCancellation(String idempotencyKey) {
         requireStatus(OrderStatus.CONFIRMED);
         status = OrderStatus.CANCELLATION_PENDING;
@@ -156,6 +165,10 @@ public class OrderEntity {
 
     public String getReservationFailureReason() {
         return reservationFailureReason;
+    }
+
+    public Integer getEtaDays() {
+        return etaDays;
     }
 
     public String getCancellationIdempotencyKey() {
